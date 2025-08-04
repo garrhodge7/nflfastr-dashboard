@@ -139,42 +139,6 @@ with tabs[0]:
     st.plotly_chart(fig, use_container_width=True)
 
 
-    st.subheader("\U0001F4C8 Season Metrics Visualization (Scatter)")
-    season_metrics = [
-        col for col in metrics_rounded.columns 
-        if col not in ['season', 'week', 'team'] and 'week' not in col.lower() and metrics_rounded[col].dtype != 'object'
-    ]
-    with st.expander("📊 Customize Season Scatter Plot", expanded=True):
-        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics, key="season_metric_y")
-        x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
-    
-        # Ensure clean season axis
-        plot_df = metrics_rounded.copy()
-        plot_df['season_str'] = plot_df['season'].astype(str)
-    
-        if x_axis == "season":
-            selectable_seasons = sorted(plot_df['season'].unique())
-            selected_x_vals = st.multiselect("Choose Seasons to Display", selectable_seasons, default=[max(selectable_seasons)])
-            plot_df = plot_df[plot_df['season'].isin(selected_x_vals)]
-            x_col = 'season_str'
-        else:
-            most_recent_season = plot_df['season'].max()
-            selectable_teams = sorted(plot_df['team'].unique())
-            selected_x_vals = st.multiselect("Choose Teams to Display", selectable_teams, default=selectable_teams)
-            plot_df = plot_df[(plot_df['team'].isin(selected_x_vals)) & (plot_df['season'] == most_recent_season)]
-            x_col = 'team'
-    
-        fig = px.scatter(
-            plot_df,
-            x=x_col,
-            y=metric_y,
-            color='team',
-            hover_data=['season', 'week'],
-            title=f"{metric_y} vs {x_axis.title()} (Season View)"
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-
     st.subheader("\U0001F4C9 Weekly Metric Trends (Scatter + Trendline)")
     week_metrics = [
         "cpoe", "total_epa", "rush_attempt_off", "pass_attempt_off", "rush_epa", "pass_epa",
@@ -293,6 +257,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
