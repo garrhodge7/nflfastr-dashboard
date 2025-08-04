@@ -63,6 +63,10 @@ st.set_page_config(layout="wide")
 st.title("2025 NFL Game Prediction Dashboard")
 tabs = st.tabs(["📘 Overview", "📊 Regression Predictions", "📈 Classification Predictions", "🔍 Nearest Neighbors Search"])
 
+metrics_rounded = metrics_df.copy()
+numeric_cols = metrics_rounded.select_dtypes(include=["float", "float64", "int"]).columns
+metrics_rounded[numeric_cols] = metrics_rounded[numeric_cols].round(3)
+
 # --- Tab 1: Overview ---
 with tabs[0]:
     st.header("Model Overview")
@@ -289,6 +293,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
