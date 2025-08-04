@@ -93,7 +93,7 @@ with tabs[0]:
     
     # Wrap all controls in an expander
     with st.expander("📊 Customize Season Scatter Plot", expanded=True):
-        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics)
+        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics, key="season_metric_y")
         x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
     
         # Copy dataframe and convert season to string
@@ -145,7 +145,7 @@ with tabs[0]:
         if col not in ['season', 'week', 'team'] and 'week' not in col.lower() and metrics_rounded[col].dtype != 'object'
     ]
     with st.expander("📊 Customize Season Scatter Plot", expanded=True):
-        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics)
+        week_metric_y = st.selectbox("Select Weekly Metric for Y-axis", week_metrics, key="weekly_metric_y")
         x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
     
         # Ensure clean season axis
@@ -293,6 +293,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
