@@ -27,7 +27,7 @@ def find_similar_games(spread_line, total_line, n=7):
     distances, indices = nn_model.kneighbors(query, n_neighbors=n)
     return data.iloc[indices[0]].copy()
 
-# --- Cached Data Loaders ---
+# --- Data Loaders ---
 @st.cache_data
 def load_regression():
     df = pd.read_csv(REG_PRED_PATH)
@@ -52,7 +52,7 @@ metrics_df = pd.read_csv(TEAM_METRICS_PATH)
 sched_df = pd.read_excel(SCHED_PATH)
 
 
-# Add regression interpretation column
+
 reg_df['home_team_covers'] = reg_df['home_team_margin'] > 0
 
 # Complete team list (32 teams)
@@ -91,7 +91,7 @@ with tabs[0]:
         and metrics_rounded[col].dtype != 'object'
     ]
     
-    # Wrap all controls in an expander
+    
     with st.expander("📊 Customize Season Scatter Plot", expanded=True):
         metric_y = st.selectbox("Select Metric for Y-axis", season_metrics, key="season_metric_y")
         x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True, key="season_x_axis")
@@ -132,7 +132,7 @@ with tabs[0]:
         title=f"{metric_y} vs {x_axis.title()} (Season View)"
     )
     
-    # 🔧 Force x-axis to treat values as categories (no jitter or decimals)
+    # 🔧 Force x-axis to treat values as categories 
     fig.update_xaxes(type='category')
     
     st.plotly_chart(fig, use_container_width=True)
@@ -170,7 +170,7 @@ with tabs[0]:
             key="weekly_selected_seasons"
         )
     
-    # ✅ Outside the expander — still works fine
+    
     line_df = metrics_rounded[
         (metrics_rounded['team'] == selected_team_line) &
         (metrics_rounded['season'].isin(selected_seasons_line))
@@ -295,6 +295,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
