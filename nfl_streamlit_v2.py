@@ -83,29 +83,29 @@ with tabs[0]:
     metrics_rounded[numeric_cols] = metrics_rounded[numeric_cols].round(3)
 
     with st.expander("🔎 Filter Team Metrics Table", expanded=True):
-    selected_years = st.multiselect(
-        "Filter by Season",
-        sorted(metrics_rounded['season'].unique()),
-        default=sorted(metrics_rounded['season'].unique())
-    )
-
-    selected_teams = st.multiselect(
-        "Filter by Team",
-        sorted(metrics_rounded['team'].unique()),
-        default=sorted(metrics_rounded['team'].unique())
-    )
-
-    selected_weeks = st.multiselect(
-        "Filter by Week",
-        sorted(metrics_rounded['week'].unique()),
-        default=sorted(metrics_rounded['week'].unique())
-    )
-
-    col_filter = st.multiselect(
-        "Columns to Display",
-        metrics_rounded.columns.tolist(),
-        default=metrics_rounded.columns.tolist()
-    )
+        selected_years = st.multiselect(
+            "Filter by Season",
+            sorted(metrics_rounded['season'].unique()),
+            default=sorted(metrics_rounded['season'].unique())
+        )
+    
+        selected_teams = st.multiselect(
+            "Filter by Team",
+            sorted(metrics_rounded['team'].unique()),
+            default=sorted(metrics_rounded['team'].unique())
+        )
+    
+        selected_weeks = st.multiselect(
+            "Filter by Week",
+            sorted(metrics_rounded['week'].unique()),
+            default=sorted(metrics_rounded['week'].unique())
+        )
+    
+        col_filter = st.multiselect(
+            "Columns to Display",
+            metrics_rounded.columns.tolist(),
+            default=metrics_rounded.columns.tolist()
+        )
 
 
     filtered_metrics = metrics_rounded[
@@ -253,6 +253,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
