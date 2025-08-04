@@ -124,27 +124,33 @@ with tabs[0]:
     with st.expander("📊 Customize Season Scatter Plot", expanded=True):
         metric_y = st.selectbox("Select Metric for Y-axis", season_metrics)
         x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
-
+    
+        # Ensure clean season axis
+        plot_df = metrics_rounded.copy()
+        plot_df['season_str'] = plot_df['season'].astype(str)
+    
         if x_axis == "season":
-            selectable_seasons = sorted(metrics_rounded['season'].unique())
+            selectable_seasons = sorted(plot_df['season'].unique())
             selected_x_vals = st.multiselect("Choose Seasons to Display", selectable_seasons, default=[max(selectable_seasons)])
-            plot_df = metrics_rounded[metrics_rounded['season'].isin(selected_x_vals)]
+            plot_df = plot_df[plot_df['season'].isin(selected_x_vals)]
+            x_col = 'season_str'
         else:
-            most_recent_season = metrics_rounded['season'].max()
-            selectable_teams = sorted(metrics_rounded['team'].unique())
+            most_recent_season = plot_df['season'].max()
+            selectable_teams = sorted(plot_df['team'].unique())
             selected_x_vals = st.multiselect("Choose Teams to Display", selectable_teams, default=selectable_teams)
-            plot_df = metrics_rounded[(metrics_rounded['team'].isin(selected_x_vals)) & (metrics_rounded['season'] == most_recent_season)]
+            plot_df = plot_df[(plot_df['team'].isin(selected_x_vals)) & (plot_df['season'] == most_recent_season)]
+            x_col = 'team'
+    
+        fig = px.scatter(
+            plot_df,
+            x=x_col,
+            y=metric_y,
+            color='team',
+            hover_data=['season', 'week'],
+            title=f"{metric_y} vs {x_axis.title()} (Season View)"
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
-
-    fig = px.scatter(
-        plot_df,
-        x=plot_df[x_axis].astype(str) if x_axis == "season" else plot_df[x_axis],
-        y=metric_y,
-        color='team',
-        hover_data=['season', 'week'],
-        title=f"{metric_y} vs {x_axis.title()} (Season View)"
-    )
-    st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("\U0001F4C9 Weekly Metric Trends (Scatter + Trendline)")
     week_metrics = [
@@ -183,7 +189,7 @@ with tabs[0]:
     fig_line.update_xaxes(
         tickmode='linear',
         dtick=1,
-        range=[1, 18],
+        range=[0, 18],
         title='Week'
     )
     st.plotly_chart(fig_line, use_container_width=True)
@@ -264,6 +270,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
