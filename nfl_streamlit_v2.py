@@ -195,7 +195,7 @@ with tabs[2]:
 with tabs[3]:
     st.header("Find Similar Historical Games")
     st.markdown("""
-    This tool uses a K-Nearest Neighbors model trained on 2020–2024 historical games.
+    This tool uses a K-Nearest Neighbors model trained on 2010–2024 historical games.
     It finds past games with similar **spread line** and **total line** to the one you input.
 
     ⚠️ **Spread is from the away team's perspective**:
@@ -233,5 +233,6 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
