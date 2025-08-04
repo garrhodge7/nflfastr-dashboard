@@ -77,44 +77,63 @@ with tabs[0]:
     All predictions are updated at the start of a new NFL week (Tuesday).
     """)
 
-    st.subheader("\U0001F4CA Explore Team Metrics")
-    metrics_rounded = metrics_df.copy()
-    numeric_cols = metrics_rounded.select_dtypes(include=["float", "float64", "int"]).columns
-    metrics_rounded[numeric_cols] = metrics_rounded[numeric_cols].round(3)
+    st.subheader("\U0001F4C8 Season Metrics Visualization (Scatter)")
 
-    with st.expander("🔎 Filter Team Metrics Table", expanded=True):
-        selected_years = st.multiselect(
-            "Filter by Season",
-            sorted(metrics_rounded['season'].unique()),
-            default=sorted(metrics_rounded['season'].unique())
-        )
+    # Define usable season-level metrics
+    season_metrics = [
+        col for col in metrics_rounded.columns 
+        if col not in ['season', 'week', 'team']
+        and 'week' not in col.lower()
+        and metrics_rounded[col].dtype != 'object'
+    ]
     
-        selected_teams = st.multiselect(
-            "Filter by Team",
-            sorted(metrics_rounded['team'].unique()),
-            default=sorted(metrics_rounded['team'].unique())
-        )
+    # Wrap all controls in an expander
+    with st.expander("📊 Customize Season Scatter Plot", expanded=True):
+        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics)
+        x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
     
-        selected_weeks = st.multiselect(
-            "Filter by Week",
-            sorted(metrics_rounded['week'].unique()),
-            default=sorted(metrics_rounded['week'].unique())
-        )
+        # Copy dataframe and convert season to string
+        plot_df = metrics_rounded.copy()
+        plot_df['season_str'] = plot_df['season'].astype(str)
     
-        col_filter = st.multiselect(
-            "Columns to Display",
-            metrics_rounded.columns.tolist(),
-            default=metrics_rounded.columns.tolist()
-        )
+        if x_axis == "season":
+            selectable_seasons = sorted(plot_df['season'].unique())
+            selected_x_vals = st.multiselect(
+                "Choose Seasons to Display", 
+                selectable_seasons, 
+                default=[max(selectable_seasons)]
+            )
+            plot_df = plot_df[plot_df['season'].isin(selected_x_vals)]
+            x_col = 'season_str'
+        else:
+            most_recent_season = plot_df['season'].max()
+            selectable_teams = sorted(plot_df['team'].unique())
+            selected_x_vals = st.multiselect(
+                "Choose Teams to Display", 
+                selectable_teams, 
+                default=selectable_teams
+            )
+            plot_df = plot_df[
+                (plot_df['team'].isin(selected_x_vals)) & 
+                (plot_df['season'] == most_recent_season)
+            ]
+            x_col = 'team'
+    
+    # Create the scatter plot
+    fig = px.scatter(
+        plot_df,
+        x=x_col,
+        y=metric_y,
+        color='team',
+        hover_data=['season', 'week'],
+        title=f"{metric_y} vs {x_axis.title()} (Season View)"
+    )
+    
+    # 🔧 Force x-axis to treat values as categories (no jitter or decimals)
+    fig.update_xaxes(type='category')
+    
+    st.plotly_chart(fig, use_container_width=True)
 
-
-    filtered_metrics = metrics_rounded[
-        metrics_rounded['season'].isin(selected_years) &
-        metrics_rounded['team'].isin(selected_teams) &
-        metrics_rounded['week'].isin(selected_weeks)
-    ][col_filter]
-
-    st.dataframe(filtered_metrics, use_container_width=True)
 
     st.subheader("\U0001F4C8 Season Metrics Visualization (Scatter)")
     season_metrics = [
@@ -270,6 +289,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
