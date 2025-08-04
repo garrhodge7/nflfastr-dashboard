@@ -93,19 +93,19 @@ with tabs[0]:
     
     # Wrap all controls in an expander
     with st.expander("📊 Customize Season Scatter Plot", expanded=True):
-        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics, key="season_metric_df_y")
-        x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
+        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics, key="season_metric_y")
+        x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True, key="season_x_axis")
     
-        # Copy dataframe and convert season to string
         plot_df = metrics_rounded.copy()
         plot_df['season_str'] = plot_df['season'].astype(str)
     
         if x_axis == "season":
             selectable_seasons = sorted(plot_df['season'].unique())
             selected_x_vals = st.multiselect(
-                "Choose Seasons to Display", 
-                selectable_seasons, 
-                default=[max(selectable_seasons)]
+                "Choose Seasons to Display",
+                selectable_seasons,
+                default=st.session_state.get("season_selected_seasons", [max(selectable_seasons)]),
+                key="season_selected_seasons"
             )
             plot_df = plot_df[plot_df['season'].isin(selected_x_vals)]
             x_col = 'season_str'
@@ -113,15 +113,14 @@ with tabs[0]:
             most_recent_season = plot_df['season'].max()
             selectable_teams = sorted(plot_df['team'].unique())
             selected_x_vals = st.multiselect(
-                "Choose Teams to Display", 
-                selectable_teams, 
-                default=selectable_teams
+                "Choose Teams to Display",
+                selectable_teams,
+                default=st.session_state.get("season_selected_teams", selectable_teams),
+                key="season_selected_teams"
             )
-            plot_df = plot_df[
-                (plot_df['team'].isin(selected_x_vals)) & 
-                (plot_df['season'] == most_recent_season)
-            ]
+            plot_df = plot_df[(plot_df['team'].isin(selected_x_vals)) & (plot_df['season'] == most_recent_season)]
             x_col = 'team'
+
     
     # Create the scatter plot
     fig = px.scatter(
@@ -153,16 +152,30 @@ with tabs[0]:
         "off_voa_cum", "def_voa_cum", "off_dvoa_cum", "def_dvoa_cum"
     ]
     with st.expander("📈 Customize Weekly Trend Chart", expanded=True):
-        week_metric_y = st.selectbox("Select Weekly Metric for Y-axis", week_metrics, key="weekly_metric_y")
-        selected_team_line = st.selectbox("Choose Team to Display", sorted(metrics_rounded['team'].unique()), index=sorted(metrics_rounded['team'].unique()).index("KC"))
-        selected_seasons_line = st.multiselect("Choose Season(s)", sorted(metrics_rounded['season'].unique()), default=[metrics_rounded['season'].max()])
-
-
+        week_metric_y = st.selectbox(
+            "Select Weekly Metric for Y-axis",
+            week_metrics,
+            key="weekly_metric_y"
+        )
+        selected_team_line = st.selectbox(
+            "Choose Team to Display",
+            sorted(metrics_rounded['team'].unique()),
+            index=sorted(metrics_rounded['team'].unique()).index("KC"),
+            key="weekly_team"
+        )
+        selected_seasons_line = st.multiselect(
+            "Choose Season(s)",
+            sorted(metrics_rounded['season'].unique()),
+            default=[metrics_rounded['season'].max()],
+            key="weekly_selected_seasons"
+        )
+    
+    # ✅ Outside the expander — still works fine
     line_df = metrics_rounded[
         (metrics_rounded['team'] == selected_team_line) &
         (metrics_rounded['season'].isin(selected_seasons_line))
     ]
-
+    
     fig_line = px.scatter(
         line_df,
         x='week',
@@ -172,14 +185,16 @@ with tabs[0]:
         trendline_color_override="red",
         hover_data=['season']
     )
-    # 🔧 Force week ticks from 1–18 at dtick=1
+    
     fig_line.update_xaxes(
         tickmode='linear',
         dtick=1,
         range=[0, 18],
         title='Week'
     )
+    
     st.plotly_chart(fig_line, use_container_width=True)
+
 with tabs[1]:
     st.header("Regression Model Predictions")
     st.markdown("""
@@ -257,6 +272,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
