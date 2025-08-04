@@ -1,4 +1,3 @@
-# streamlit_app.py
 import streamlit as st
 import pandas as pd
 import joblib
@@ -72,10 +71,10 @@ with tabs[0]:
 
     - **Regression Predictions:** Final score predictions for both teams using XGBoost regressors.
     - **Classification Predictions:** Whether the home team will cover the spread using a classification model.
-    - **Nearest Neighbors Search:** Finds similar historical games based on spread and total line using a KNN model. 
+    - **Nearest Neighbors Search:** Finds similar historical games (2010-2024) based on spread and total line using a KNN model. 
       - ⚠️ *Spread input is from the **away team's** perspective: -2.5 = away is favorite; +2.5 = away is underdog.*
 
-    All predictions use the most recent data available from the 2024 season as a proxy for 2025 games.
+    All predictions are updated at the start of a new NFL week (Tuesday).
     """)
 
     st.subheader("\U0001F4CA Explore Team Metrics")
@@ -83,15 +82,31 @@ with tabs[0]:
     numeric_cols = metrics_rounded.select_dtypes(include=["float", "float64", "int"]).columns
     metrics_rounded[numeric_cols] = metrics_rounded[numeric_cols].round(3)
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        selected_years = st.multiselect("Filter by Season", sorted(metrics_rounded['season'].unique()), default=sorted(metrics_rounded['season'].unique()))
-    with col2:
-        selected_teams = st.multiselect("Filter by Team", sorted(metrics_rounded['team'].unique()), default=sorted(metrics_rounded['team'].unique()))
-    with col3:
-        selected_weeks = st.multiselect("Filter by Week", sorted(metrics_rounded['week'].unique()), default=sorted(metrics_rounded['week'].unique()))
+    with st.expander("🔎 Filter Team Metrics Table", expanded=True):
+    selected_years = st.multiselect(
+        "Filter by Season",
+        sorted(metrics_rounded['season'].unique()),
+        default=sorted(metrics_rounded['season'].unique())
+    )
 
-    col_filter = st.multiselect("Columns to Display", metrics_rounded.columns.tolist(), default=metrics_rounded.columns.tolist())
+    selected_teams = st.multiselect(
+        "Filter by Team",
+        sorted(metrics_rounded['team'].unique()),
+        default=sorted(metrics_rounded['team'].unique())
+    )
+
+    selected_weeks = st.multiselect(
+        "Filter by Week",
+        sorted(metrics_rounded['week'].unique()),
+        default=sorted(metrics_rounded['week'].unique())
+    )
+
+    col_filter = st.multiselect(
+        "Columns to Display",
+        metrics_rounded.columns.tolist(),
+        default=metrics_rounded.columns.tolist()
+    )
+
 
     filtered_metrics = metrics_rounded[
         metrics_rounded['season'].isin(selected_years) &
@@ -106,17 +121,20 @@ with tabs[0]:
         col for col in metrics_rounded.columns 
         if col not in ['season', 'week', 'team'] and 'week' not in col.lower() and metrics_rounded[col].dtype != 'object'
     ]
-    metric_y = st.selectbox("Select Metric for Y-axis (Season View)", season_metrics)
+    with st.expander("📊 Customize Season Scatter Plot", expanded=True):
+    metric_y = st.selectbox("Select Metric for Y-axis", season_metrics)
     x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
 
-    if x_axis == "season":
-        selectable_seasons = sorted(metrics_rounded['season'].unique())
-        selected_x_vals = st.multiselect("Choose Seasons to Display", selectable_seasons, default=[max(selectable_seasons)])
-        plot_df = metrics_rounded[metrics_rounded['season'].isin(selected_x_vals)]
-    else:  # team
-        most_recent_season = metrics_rounded['season'].max()
-        selected_x_vals = st.multiselect("Choose Teams to Display", sorted(metrics_rounded['team'].unique()), default=sorted(metrics_rounded[metrics_rounded['season'] == most_recent_season]['team'].unique()))
-        plot_df = metrics_rounded[(metrics_rounded['team'].isin(selected_x_vals)) & (metrics_rounded['season'] == most_recent_season)]
+        if x_axis == "season":
+            selectable_seasons = sorted(metrics_rounded['season'].unique())
+            selected_x_vals = st.multiselect("Choose Seasons to Display", selectable_seasons, default=[max(selectable_seasons)])
+            plot_df = metrics_rounded[metrics_rounded['season'].isin(selected_x_vals)]
+        else:
+            most_recent_season = metrics_rounded['season'].max()
+            selectable_teams = sorted(metrics_rounded['team'].unique())
+            selected_x_vals = st.multiselect("Choose Teams to Display", selectable_teams, default=selectable_teams)
+            plot_df = metrics_rounded[(metrics_rounded['team'].isin(selected_x_vals)) & (metrics_rounded['season'] == most_recent_season)]
+
 
     fig = px.scatter(
         plot_df,
@@ -141,9 +159,11 @@ with tabs[0]:
         "off_turnover_rate", "def_turnover_forced_rate", "off_voa_week", "def_voa_week",
         "off_voa_cum", "def_voa_cum", "off_dvoa_cum", "def_dvoa_cum"
     ]
-    week_metric_y = st.selectbox("Select Metric for Y-axis (Weekly View)", week_metrics)
+    with st.expander("📈 Customize Weekly Trend Chart", expanded=True):
+    week_metric_y = st.selectbox("Select Weekly Metric for Y-axis", week_metrics)
     selected_team_line = st.selectbox("Choose Team to Display", sorted(metrics_rounded['team'].unique()), index=sorted(metrics_rounded['team'].unique()).index("KC"))
     selected_seasons_line = st.multiselect("Choose Season(s)", sorted(metrics_rounded['season'].unique()), default=[metrics_rounded['season'].max()])
+
 
     line_df = metrics_rounded[
         (metrics_rounded['team'] == selected_team_line) &
@@ -233,6 +253,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
