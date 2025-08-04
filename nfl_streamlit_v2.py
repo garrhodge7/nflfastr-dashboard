@@ -138,7 +138,7 @@ with tabs[0]:
 
     fig = px.scatter(
         plot_df,
-        x=x_axis,
+        x=plot_df[x_axis].astype(str) if x_axis == "season" else plot_df[x_axis],
         y=metric_y,
         color='team',
         hover_data=['season', 'week'],
@@ -178,6 +178,13 @@ with tabs[0]:
         trendline="ols",
         trendline_color_override="red",
         hover_data=['season']
+    )
+    # 🔧 Force week ticks from 1–18 at dtick=1
+    fig_line.update_xaxes(
+        tickmode='linear',
+        dtick=1,
+        range=[1, 18],
+        title='Week'
     )
     st.plotly_chart(fig_line, use_container_width=True)
 with tabs[1]:
@@ -257,6 +264,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
