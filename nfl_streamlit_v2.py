@@ -195,6 +195,7 @@ with tabs[1]:
     - If `home_team_margin > 0`, the model believes the **home team will cover the spread**
 
     Use this to identify differences between Vegas spreads and model expectations.
+    
     ***ALL SPREAD_LINE ARE FROM THE AWAY TEAM POINT OF VIEW***
     """)
     st.dataframe(reg_df.sort_values(by="home_team_margin", ascending=False))
@@ -209,6 +210,7 @@ with tabs[2]:
     - `prob_cover` is the model's confidence in that outcome
 
     This model was trained on 2020–2024 historical data with a season/week split to avoid leakage.
+    
     ***ALL SPREAD_LINE ARE FROM THE AWAY TEAM POINT OF VIEW***
     """)
     st.dataframe(cls_df)
@@ -255,6 +257,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
