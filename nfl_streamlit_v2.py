@@ -122,8 +122,8 @@ with tabs[0]:
         if col not in ['season', 'week', 'team'] and 'week' not in col.lower() and metrics_rounded[col].dtype != 'object'
     ]
     with st.expander("📊 Customize Season Scatter Plot", expanded=True):
-    metric_y = st.selectbox("Select Metric for Y-axis", season_metrics)
-    x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
+        metric_y = st.selectbox("Select Metric for Y-axis", season_metrics)
+        x_axis = st.radio("Select X-axis", ["season", "team"], horizontal=True)
 
         if x_axis == "season":
             selectable_seasons = sorted(metrics_rounded['season'].unique())
@@ -160,9 +160,9 @@ with tabs[0]:
         "off_voa_cum", "def_voa_cum", "off_dvoa_cum", "def_dvoa_cum"
     ]
     with st.expander("📈 Customize Weekly Trend Chart", expanded=True):
-    week_metric_y = st.selectbox("Select Weekly Metric for Y-axis", week_metrics)
-    selected_team_line = st.selectbox("Choose Team to Display", sorted(metrics_rounded['team'].unique()), index=sorted(metrics_rounded['team'].unique()).index("KC"))
-    selected_seasons_line = st.multiselect("Choose Season(s)", sorted(metrics_rounded['season'].unique()), default=[metrics_rounded['season'].max()])
+        week_metric_y = st.selectbox("Select Weekly Metric for Y-axis", week_metrics)
+        selected_team_line = st.selectbox("Choose Team to Display", sorted(metrics_rounded['team'].unique()), index=sorted(metrics_rounded['team'].unique()).index("KC"))
+        selected_seasons_line = st.multiselect("Choose Season(s)", sorted(metrics_rounded['season'].unique()), default=[metrics_rounded['season'].max()])
 
 
     line_df = metrics_rounded[
@@ -253,6 +253,7 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
 
 
 
