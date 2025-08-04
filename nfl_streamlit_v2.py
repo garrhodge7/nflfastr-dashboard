@@ -242,20 +242,43 @@ with tabs[3]:
     - `+2.5` → away team is 2.5-point underdog
     """)
 
-    # Inputs
+    # Inputs with session state
     col1, col2 = st.columns(2)
     with col1:
-        home_team = st.selectbox("Home Team", nfl_teams)
-        spread_line = st.number_input("Spread Line (away team perspective)", value=0.0, step=0.5)
+        home_team = st.selectbox(
+            "Home Team", nfl_teams, 
+            key="nn_home_team"
+        )
+        spread_line = st.number_input(
+            "Spread Line (away team perspective)", 
+            value=st.session_state.get("nn_spread_line", 0.0),
+            step=0.5,
+            key="nn_spread_line"
+        )
     with col2:
-        away_team = st.selectbox("Away Team", nfl_teams)
-        total_line = st.number_input("Total Line", value=44.5, step=0.5)
+        away_team = st.selectbox(
+            "Away Team", nfl_teams, 
+            key="nn_away_team"
+        )
+        total_line = st.number_input(
+            "Total Line", 
+            value=st.session_state.get("nn_total_line", 44.5),
+            step=0.5,
+            key="nn_total_line"
+        )
 
     if st.button("Find Similar Games"):
-        similar_games = find_similar_games(spread_line=spread_line, total_line=total_line)
+        similar_games = find_similar_games(
+            spread_line=spread_line,
+            total_line=total_line
+        )
+
         st.subheader("Most Similar Historical Matchups")
-        st.dataframe(similar_games[['season', 'week', 'home_team', 'away_team', 'spread_line', 'total_line',
-                                    'total_home_score', 'total_away_score', 'total_score', 'over_under_result']])
+        st.dataframe(similar_games[[
+            'season', 'week', 'home_team', 'away_team',
+            'spread_line', 'total_line', 'total_home_score',
+            'total_away_score', 'total_score', 'over_under_result'
+        ]])
 
         # Prediction logic based on majority class
         if not similar_games.empty:
@@ -272,6 +295,8 @@ with tabs[3]:
             st.markdown(f"### 📊 Model Prediction Based on Similar Games: **{model_pick}**")
             st.markdown(f"- Over: {over_count} of 7")
             st.markdown(f"- Under: {under_count} of 7")
+
+
 
 
 
